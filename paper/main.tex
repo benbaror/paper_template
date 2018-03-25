@@ -1,0 +1,108 @@
+\documentclass[times,twocolumn]{aastex62}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{lipsum}
+\usepackage{mathtools}
+\usepackage{hyperref}
+\hypersetup{dvips, colorlinks=true, linkcolor=black, citecolor=black, filecolor=blue, urlcolor=black}
+
+\usepackage{amsmath}
+\usepackage[noabbrev]{cleveref}
+\usepackage{placeins}
+\usepackage{xspace}
+
+
+
+%%%% Define Acronyms
+\usepackage{acronym}
+%
+\newacro{MBH}{massive black hole}
+\newacroplural{MBH}[MBHs]{massive black holes}
+\newcommand{\MBH}{\ac{MBH}}
+\newcommand{\MBHs}{\acp{MBH}}
+
+%%%% Math %%%%
+\usepackage{commath}
+
+
+%%%% Show Equations labels %%%%
+% \usepackage[notcite,notref]{showkeys}
+% \renewcommand*\showkeyslabelformat[1]{\normalfont\tiny\ttfamily#1}
+%%%%%%
+
+
+
+% Defs
+
+
+% Roman
+\newcommand{\rd}{\mathrm{d}}
+\newcommand{\re}{\mathrm{e}}
+\newcommand{\ri}{\mathrm{i}}
+
+
+% Int
+\usepackage{xargs}
+\newcommandx\dint[2][usedefault, addprefix=\global, 1=, 2=]{\!\!\int_{#1}^{#2}\!\! \rd}
+
+
+%comments
+\usepackage{soul} % To allow for the use of \hl.
+
+% Equations
+\newcommand\eq{equation}
+\newcommand\eqs{equations}
+\newcommand\Eq{Equation}
+\newcommand\Eqs{Equations}
+
+
+%\submitjournal{ApJL}
+
+
+\shorttitle{short title}
+\shortauthors{Bar-Or and \dots}
+
+\begin{document}
+
+\title{Title}
+
+\author{Ben Bar-Or}
+\affiliation{Institute for Advanced Study, Princeton, NJ, USA}
+
+\author{\dots}
+\affiliation{Institute for Advanced Study, Princeton, NJ, USA}
+
+\keywords{gravitation --- black hole physics --- galaxies: nuclei}
+
+\begin{abstract}
+  abstract
+\end{abstract}
+
+
+%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+\cite{Bar-Or+2016}
+
+\begin{figure}[h]
+\plotone{figures/example}
+\caption{\label{fig:example}}
+\end{figure}
+
+
+
+%%%%%%%%%%%%%%%%%%%%
+\acknowledgments\
+
+We thank \dots
+
+%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%
+\bibliographystyle{apj}
+\bibliography{main}
+%%%%%%%%%%%%%%%%%%%%
+
+
+
+\end{document}
