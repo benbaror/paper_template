@@ -1,5 +1,5 @@
 
-TEXtoPDF = pdflatex -halt-on-error
+TEXtoPDF = texfot pdflatex 
 BIBTEX = bibtex
 COUNT =  sh textcount.sh
 BBL = sh bbl.sh
@@ -9,9 +9,9 @@ main: main.pdf
 sub: sub/ms.pdf
 
 ms.pdf : ms.tex main.bib 
-	${TEXtoPDF} ms.tex
+	${TEXtoPDF} ms.tex 
 	${BIBTEX} ms
-	${TEXtoPDF} ms.tex
+	${TEXtoPDF} ms.tex > /dev/null
 	${BBL} ms.tex
 	${TEXtoPDF} ms.tex
 	${COUNT} ms.tex > stats.txt
