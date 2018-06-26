@@ -1,1 +1,7 @@
-ref*
+ms*
+auto*
+\#*
+*.aux
+*~
+__*
+*flymake*
