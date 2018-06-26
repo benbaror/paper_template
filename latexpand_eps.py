@@ -24,23 +24,22 @@ def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
 def reformat(lines, target_dir):
     # Add non-braking spaces
     i = 0
-    for l in lines:
-        if 'begin{figure' in l:
+    m = 0
+    for line in lines:
+        if 'begin{figure' in line:
             i = i + 1
             m = 0
         matches = set(eps for eps_pattern in EPS_PATTERN for
-                      eps in eps_pattern.findall(l))
-
+                      eps in eps_pattern.findall(line))
 
         for _, eps_file in matches:
-            # dest = os.path.split(eps_file)[-1]+ '_' + id_generator(3)
             dest = 'Figure{}{}'.format(i, ABC[m]) if len(matches) > 1 \
                    else 'Figure{}'.format(i)
             m = m + 1
             shutil.copyfile(eps_file + '.eps',
                             os.path.join(target_dir, dest + '.eps'))
-            l = l.replace(eps_file, dest)
-        yield l
+            line = line.replace(eps_file, dest)
+        yield line
 
 
 if __name__ == '__main__':
@@ -53,8 +52,8 @@ if __name__ == '__main__':
     except OSError:
         pass
     with open(args.input_file) as f:
-        lines = reformat(f.readlines(), args.target_dir)
+        relines = reformat(f.readlines(), args.target_dir)
     with open(args.target_dir + '/' + args.input_file, 'w') as f:
-        f.writelines(lines)
+        f.writelines(relines)
     bbl_file = args.input_file.replace('tex', 'bbl')
     shutil.copyfile(bbl_file, os.path.join(args.target_dir, bbl_file))
