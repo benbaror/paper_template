@@ -1,13 +1,13 @@
 src=./scripts
 
 
-all:  example.eps
+all:  example_1a.eps example_1b.eps example_1c.eps example_2.eps
 
 %.eps: %.rplt matplotlibrc
 	rplt --savefig $@ $<
 
-%.rplt: scripts/plot_%.py
-	python $< 
+%.rplt: scripts/plot_example.py
+	python $< --save $@
 
 .PRECIOUS: %.rplt
 

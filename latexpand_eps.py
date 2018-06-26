@@ -14,6 +14,7 @@ import string
 EPS_PATTERN = (re.compile(r'.*?\\includegraphics(\[[^\]]*\])?{([^}]*)}.*?'),
                re.compile(r'.*?\\plotone(\[[^\]]*\])?{([^}]*)}.*?'))
 
+
 ABC = string.ascii_lowercase
 
 
@@ -24,22 +25,40 @@ def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
 def reformat(lines, target_dir):
     # Add non-braking spaces
     i = 0
-    m = 0
-    for line in lines:
-        if 'begin{figure' in line:
+    in_fig_env = False
+    for l in lines:
+        if 'begin{figure' in l:
             i = i + 1
-            m = 0
-        matches = set(eps for eps_pattern in EPS_PATTERN for
-                      eps in eps_pattern.findall(line))
+            in_fig_env = True
+            fig_env = []
+            yield l
+        elif in_fig_env:
+            if 'end{figure' in l:
+                yield reformat_fig_env(fig_env, i, target_dir)
+                in_fig_env = False
+                yield l
+            else:
+                fig_env.append(l)
+        else:
+            yield l
 
-        for _, eps_file in matches:
-            dest = 'Figure{}{}'.format(i, ABC[m]) if len(matches) > 1 \
-                   else 'Figure{}'.format(i)
-            m = m + 1
-            shutil.copyfile(eps_file + '.eps',
-                            os.path.join(target_dir, dest + '.eps'))
-            line = line.replace(eps_file, dest)
-        yield line
+
+def reformat_fig_env(lines, i, target_dir):
+    fig_env = "".join(lines)
+    matches = [eps for eps_pattern in EPS_PATTERN for
+                  eps in eps_pattern.findall(fig_env)]
+
+
+    m = 0
+    for _, eps_file in matches:
+        dest = 'Figure{}{}'.format(i, ABC[m]) if len(matches) > 1 \
+               else 'Figure{}'.format(i)
+        m = m + 1
+        print(i, m)
+        shutil.copyfile(eps_file + '.eps',
+                        os.path.join(target_dir, dest + '.eps'))
+        fig_env = fig_env.replace(eps_file, dest)
+    return fig_env
 
 
 if __name__ == '__main__':
@@ -52,8 +71,8 @@ if __name__ == '__main__':
     except OSError:
         pass
     with open(args.input_file) as f:
-        relines = reformat(f.readlines(), args.target_dir)
+        lines = reformat(f.readlines(), args.target_dir)
     with open(args.target_dir + '/' + args.input_file, 'w') as f:
-        f.writelines(relines)
+        f.writelines(lines)
     bbl_file = args.input_file.replace('tex', 'bbl')
     shutil.copyfile(bbl_file, os.path.join(args.target_dir, bbl_file))
