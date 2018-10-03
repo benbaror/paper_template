@@ -1,5 +1,5 @@
 """
-Copy all eps figure and tex file to a target directory and change
+Copy all eps figures and the tex file to a target directory and change
 the file reference in the tex file accordingly.
 """
 
@@ -18,23 +18,19 @@ EPS_PATTERN = (re.compile(r'.*?\\includegraphics(\[[^\]]*\])?{([^}]*)}.*?'),
 ABC = string.ascii_lowercase
 
 
-def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
-    return ''.join(random.choice(chars) for _ in range(size))
-
-
 def reformat(lines, target_dir):
-    # Add non-braking spaces
-    i = 0
+    """Identify the figure sections in the tex file and reformat them"""
+    fig_number = 0
     in_fig_env = False
     for l in lines:
         if 'begin{figure' in l:
-            i = i + 1
+            fig_number += 1
             in_fig_env = True
             fig_env = []
             yield l
         elif in_fig_env:
             if 'end{figure' in l:
-                yield reformat_fig_env(fig_env, i, target_dir)
+                yield reformat_fig_env(fig_env, fig_number, target_dir)
                 in_fig_env = False
                 yield l
             else:
@@ -43,21 +39,26 @@ def reformat(lines, target_dir):
             yield l
 
 
-def reformat_fig_env(lines, i, target_dir):
-    fig_env = "".join(lines)
+def reformat_fig_env(fig_env, fig_number, target_dir):
+    """Change the names of the figure file in used in `fig_env`,
+       when the is more the one figures name add a letter {a,b,c,...}
+       to the end of each sub_figure file_name
+    """
+
+    fig_env = "".join(fig_env)
     matches = [eps for eps_pattern in EPS_PATTERN for
-                  eps in eps_pattern.findall(fig_env)]
+               eps in eps_pattern.findall(fig_env)]
 
-
-    m = 0
+    sub_fig_number = 0
     for _, eps_file in matches:
-        dest = 'Figure{}{}'.format(i, ABC[m]) if len(matches) > 1 \
-               else 'Figure{}'.format(i)
-        m = m + 1
-        print(i, m)
+        new_name = 'Figure{}{}'.format(fig_number, ABC[sub_fig_number]) \
+               if len(matches) > 1 \
+               else 'Figure{}'.format(fig_number)
+        print("Processed {} as eps_file {}".format(eps_file, new_name))
+        sub_fig_number += 1
         shutil.copyfile(eps_file + '.eps',
-                        os.path.join(target_dir, dest + '.eps'))
-        fig_env = fig_env.replace(eps_file, dest)
+                        os.path.join(target_dir, new_name + '.eps'))
+        fig_env = fig_env.replace(eps_file, new_name)
     return fig_env
 
 
