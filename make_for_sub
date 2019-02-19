@@ -8,4 +8,4 @@ ms.pdf : ms.tex
 	tar -cf ms.tar Fig*.eps *.cls ms.tex
 
 clean:
-	rm -f Fig*.pdf ms.aux *.bib *.log *.bbl
+	rm -f  ms.aux *.bib *.log *.bbl *eps-converted-to.pdf

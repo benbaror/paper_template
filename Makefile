@@ -36,4 +36,4 @@ sub/ms.pdf: ms.pdf main.bib latexpand_eps.py make_for_sub
 	make -C sub ms clean
 
 clean:
-	rm -f ms.* msNotes.bib
+	rm -f ms.* msNotes.bib */*eps-converted-to.pdf

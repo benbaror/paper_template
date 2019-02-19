@@ -11,7 +11,7 @@ import os
 import random
 import string
 
-EPS_PATTERN = (re.compile(r'.*?\\includegraphics(\[[^\]]*\])?{([^}]*)}.*?'),
+FIG_PATTERN = (re.compile(r'.*?\\includegraphics(\[[^\]]*\])?{([^}]*)}.*?'),
                re.compile(r'.*?\\plotone(\[[^\]]*\])?{([^}]*)}.*?'))
 
 
@@ -46,19 +46,23 @@ def reformat_fig_env(fig_env, fig_number, target_dir):
     """
 
     fig_env = "".join(fig_env)
-    matches = [eps for eps_pattern in EPS_PATTERN for
-               eps in eps_pattern.findall(fig_env)]
-
+    matches = [fig for fig_pattern in FIG_PATTERN for
+               fig in fig_pattern.findall(fig_env)]
     sub_fig_number = 0
-    for _, eps_file in matches:
+    for _, fig_file in matches:
+        _, ext = os.path.splitext(fig_file)
+        if ext is '':
+            ext = '.eps'
+
         new_name = 'Figure{}{}'.format(fig_number, ABC[sub_fig_number]) \
                if len(matches) > 1 \
                else 'Figure{}'.format(fig_number)
-        print("Processed {} as eps_file {}".format(eps_file, new_name))
+        new_name += ext
+        print("Processed {} as {}".format(fig_file, new_name))
         sub_fig_number += 1
-        shutil.copyfile(eps_file + '.eps',
-                        os.path.join(target_dir, new_name + '.eps'))
-        fig_env = fig_env.replace(eps_file, new_name)
+        shutil.copyfile(fig_file + (ext if ext == '.eps' else ''),
+                        os.path.join(target_dir, new_name))
+        fig_env = fig_env.replace(fig_file, new_name)
     return fig_env
 
 
@@ -75,5 +79,3 @@ if __name__ == '__main__':
         lines = reformat(f.readlines(), args.target_dir)
     with open(args.target_dir + '/' + args.input_file, 'w') as f:
         f.writelines(lines)
-    bbl_file = args.input_file.replace('tex', 'bbl')
-    shutil.copyfile(bbl_file, os.path.join(args.target_dir, bbl_file))
