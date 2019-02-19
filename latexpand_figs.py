@@ -18,7 +18,7 @@ FIG_PATTERN = (re.compile(r'.*?\\includegraphics(\[[^\]]*\])?{([^}]*)}.*?'),
 ABC = string.ascii_lowercase
 
 
-def reformat(lines, target_dir):
+def reformat(lines, target_dir, figure_list):
     """Identify the figure sections in the tex file and reformat them"""
     fig_number = 0
     in_fig_env = False
@@ -30,7 +30,8 @@ def reformat(lines, target_dir):
             yield l
         elif in_fig_env:
             if 'end{figure' in l:
-                yield reformat_fig_env(fig_env, fig_number, target_dir)
+                yield reformat_fig_env(fig_env, fig_number, target_dir,
+                                       figure_list=figure_list)
                 in_fig_env = False
                 yield l
             else:
@@ -39,7 +40,7 @@ def reformat(lines, target_dir):
             yield l
 
 
-def reformat_fig_env(fig_env, fig_number, target_dir):
+def reformat_fig_env(fig_env, fig_number, target_dir, figure_list):
     """Change the names of the figure file in used in `fig_env`,
        when the is more the one figures name add a letter {a,b,c,...}
        to the end of each sub_figure file_name
@@ -51,31 +52,42 @@ def reformat_fig_env(fig_env, fig_number, target_dir):
     sub_fig_number = 0
     for _, fig_file in matches:
         _, ext = os.path.splitext(fig_file)
-        if ext is '':
-            ext = '.eps'
 
         new_name = 'Figure{}{}'.format(fig_number, ABC[sub_fig_number]) \
                if len(matches) > 1 \
                else 'Figure{}'.format(fig_number)
-        new_name += ext
+        add_ext = ('.eps' if ext == '' else '')
+        new_name += ext + add_ext
         print("Processed {} as {}".format(fig_file, new_name))
+        figure_list += ["{} -> {}\n".format(fig_file, new_name)]
         sub_fig_number += 1
-        shutil.copyfile(fig_file + (ext if ext == '.eps' else ''),
+        shutil.copyfile(fig_file + add_ext,
                         os.path.join(target_dir, new_name))
         fig_env = fig_env.replace(fig_file, new_name)
     return fig_env
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("input_file", help='Input file name')
     parser.add_argument("target_dir", help='Output file name')
     args = parser.parse_args()
+    figure_list = ["Figures:\n"]
     try:
         os.makedirs(args.target_dir)
     except OSError:
         pass
-    with open(args.input_file) as f:
-        lines = reformat(f.readlines(), args.target_dir)
-    with open(args.target_dir + '/' + args.input_file, 'w') as f:
-        f.writelines(lines)
+    with open(args.input_file) as input_file:
+        lines = reformat(input_file.readlines(), args.target_dir,
+                         figure_list=figure_list)
+
+    with open(args.target_dir + '/' + args.input_file, 'w') as input_file:
+        input_file.writelines(lines)
+
+    # Write the figure list
+    with open(args.target_dir + '/figures.txt', 'w') as fig_file:
+        fig_file.writelines(figure_list)
+
+
+if __name__ == '__main__':
+    main()
