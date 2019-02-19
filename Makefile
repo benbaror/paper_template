@@ -28,9 +28,9 @@ main.pdf : main.tex style/preamble.tex
 	${TEXtoPDF} main.tex
 	${TEXtoPDF} main.tex
 
-sub/ms.pdf: ms.pdf main.bib latexpand_eps.py make_for_sub
+sub/ms.pdf: ms.pdf main.bib latexpand_figs.py make_for_sub
 	rm -rf sub
-	python latexpand_eps.py ms.tex sub
+	python latexpand_figs.py ms.tex sub
 	cp *.cls sub
 	cp make_for_sub sub/Makefile
 	make -C sub ms clean
