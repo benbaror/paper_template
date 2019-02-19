@@ -31,7 +31,8 @@ main.pdf : main.tex style/preamble.tex
 sub/ms.pdf: ms.pdf main.bib latexpand_figs.py make_for_sub
 	rm -rf sub
 	python latexpand_figs.py ms.tex sub
-	cp *.cls sub
+	if [ -f *.sty ]; then cp *.sty sub ; fi
+	if [ -f *.cls ]; then cp *.cls sub ; fi
 	cp make_for_sub sub/Makefile
 	make -C sub ms clean
 
